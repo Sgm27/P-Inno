@@ -2,6 +2,8 @@ import json
 import google.generativeai as genai
 from app.core.config import get_settings
 
+FALLBACK_MODEL = "gemini-1.5-flash"
+
 
 async def analyze_image_intents(image_bytes: bytes) -> dict:
     """
@@ -14,16 +16,32 @@ async def analyze_image_intents(image_bytes: bytes) -> dict:
     
     # Configure Gemini API
     genai.configure(api_key=settings.GEMINI_API_KEY)
-    
-    # Initialize the model
-    # Using gemini-1.5-pro - supports vision and JSON response format
-    model = genai.GenerativeModel(
-        model_name=settings.GEMINI_MODEL_NAME,
-        generation_config={
-            "response_mime_type": "application/json",
-            "temperature": 0.7,
-        }
-    )
+
+    def _init_model(model_name: str):
+        return genai.GenerativeModel(
+            model_name=model_name,
+            generation_config={
+                "response_mime_type": "application/json",
+                "temperature": 0.7,
+            }
+        )
+
+    # Initialize the model, falling back to a v1beta-compatible option if needed
+    model_name = settings.GEMINI_MODEL_NAME or FALLBACK_MODEL
+    try:
+        model = _init_model(model_name)
+    except Exception as e:
+        if model_name == FALLBACK_MODEL:
+            raise Exception(f"Gemini API error: {str(e)}")
+        try:
+            model = _init_model(FALLBACK_MODEL)
+            model_name = FALLBACK_MODEL
+        except Exception as fallback_error:
+            raise Exception(
+                "Gemini API error: failed to initialize models. "
+                f"Primary '{model_name}' failed with: {str(e)}. "
+                f"Fallback '{FALLBACK_MODEL}' failed with: {str(fallback_error)}."
+            )
     
     # System prompt
     system_prompt = """You are an assistant helping parents and teachers understand the intent of an autistic child's sketch or photo.

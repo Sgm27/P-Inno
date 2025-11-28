@@ -55,6 +55,8 @@ P-Inno/
    The `.env` file should contain:
    ```
    GEMINI_API_KEY=your_api_key_here
+   # Optional: override the default v1beta-compatible model (defaults to gemini-1.5-flash)
+   # GEMINI_MODEL_NAME=gemini-1.5-flash
    ```
 
 5. **Run the backend server:**

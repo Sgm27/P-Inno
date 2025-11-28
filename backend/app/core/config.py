@@ -6,9 +6,10 @@ from typing import Optional
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
-    
+
     GEMINI_API_KEY: str
-    GEMINI_MODEL_NAME: str = "gemini-1.5-pro"
+    # Default to a v1beta-compatible model
+    GEMINI_MODEL_NAME: str = "gemini-1.5-flash"
     
     class Config:
         env_file = Path(__file__).parent.parent.parent.parent / ".env"
