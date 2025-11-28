@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     GEMINI_API_KEY: str
     # Default to a v1beta-compatible model
-    GEMINI_MODEL_NAME: str = "gemini-1.5-flash"
+    GEMINI_MODEL_NAME: str = "gemini-2.5-flash"
     
     class Config:
         env_file = Path(__file__).parent.parent.parent.parent / ".env"
